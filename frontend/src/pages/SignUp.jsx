@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FaEye, FaRegEyeSlash } from 'react-icons/fa'
+import { FaEye, FaRegEyeSlash, FaUser, FaStore, FaTruck } from 'react-icons/fa'
 import { FcGoogle } from 'react-icons/fc'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
@@ -8,6 +8,9 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { auth } from '../../firebase'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { ClipLoader } from 'react-spinners'
+import { useDispatch } from 'react-redux'
+import { setUserData } from '../redux/userSlice'
 
 const SignUp = () => {
     const primaryColor = "#ff4d2d"
@@ -22,6 +25,9 @@ const SignUp = () => {
     const [email, setEmail] = useState('')
     const [mobile, setMobile] = useState('')
     const [password, setPassword] = useState('')
+    const [loading, setLoading] = useState(false)
+    const dispatch = useDispatch()
+
 
     // State cho validation errors
     const [errors, setErrors] = useState({
@@ -122,6 +128,7 @@ const SignUp = () => {
         if (!validateAllFields()) {
             return
         }
+        setLoading(true)
 
         try {
             const result = await axios.post(`${serverUrl}/api/auth/signup`, {
@@ -131,13 +138,15 @@ const SignUp = () => {
                 mobile,
                 role
             }, { withCredentials: true })
-            console.log(result)
+            dispatch(setUserData(result.data))
+            setLoading(false)
             toast.success('Đăng ký thành công!', {
                 position: 'top-right',
                 autoClose: 2000
             })
             setTimeout(() => navigate('/signin'), 2000)
         } catch (err) {
+            setLoading(false)
             const errorMessage = err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.'
             toast.error(errorMessage, {
                 position: 'top-right',
@@ -165,7 +174,7 @@ const SignUp = () => {
             }, {
                 withCredentials: true
             })
-            console.log(data)
+            dispatch(setUserData(data))
             toast.success('Đăng ký Google thành công!', {
                 position: 'top-right',
                 autoClose: 2000
@@ -255,19 +264,25 @@ const SignUp = () => {
                     <label className='block text-gray-700 font-medium mb-1' htmlFor='role'>Vai trò</label>
                     <div className='flex gap-2'>
                         {['user', 'owner', 'deliveryBoy'].map(((r) => (
-                            <button className=' cursor-pointer flex-1 border rounded-lg px-3 py-2 text-center font-medium transition-colors'
+                            <button className='cursor-pointer flex-1 border rounded-lg px-3 py-2 text-center font-medium transition-colors flex flex-col items-center gap-2'
                                 key={r}
                                 onClick={() => setRole(r)}
                                 style={
                                     role == r ? { backgroundColor: primaryColor, color: 'white', border: `1px solid ${primaryColor}` }
                                         : { backgroundColor: 'white', color: 'black', border: `1px solid ${borderColor}` }
-                                }>{r === 'user' ? 'Người dùng' : r === 'owner' ? 'Chủ shop' : 'Shipper'}</button>
+                                }
+                            >
+                                <div className='text-xl'>
+                                    {r === 'user' ? <FaUser size={20} /> : r === 'owner' ? <FaStore size={20} /> : <FaTruck size={20} />}
+                                </div>
+                                <span>{r === 'user' ? 'Người dùng' : r === 'owner' ? 'Chủ shop' : 'Shipper'}</span>
+                            </button>
                         )))}
                     </div>
                 </div>
 
-                <button onClick={handleSignUp} className={`w-full font-semibold rounded-lg py-2 transition duration-200 bg-[#ff4d2d] text-white hover:bg-[#e64323] cursor-pointer`} >
-                    Đăng ký
+                <button disabled={loading} onClick={handleSignUp} className={`w-full font-semibold rounded-lg py-2 transition duration-200 bg-[#ff4d2d] text-white hover:bg-[#e64323] cursor-pointer`} >
+                    {loading ? <ClipLoader size={25} color='white' /> : 'Đăng ký'}
                 </button>
 
                 <button

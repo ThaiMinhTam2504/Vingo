@@ -6,11 +6,12 @@ import { serverUrl } from '../App'
 import { FaEye, FaRegEyeSlash, FaEnvelope, FaShieldAlt, FaLock } from 'react-icons/fa'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { ClipLoader } from 'react-spinners'
 
 const ForgotPassword = () => {
     const primaryColor = "#ff4d2d"
     const inactiveColor = "#d1d5db"
-
+    const [loading, setLoading] = useState(false)
     const [isShowPassword, setIsShowPassword] = useState(false)
     const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false)
     const [step, setStep] = useState(1)
@@ -93,6 +94,7 @@ const ForgotPassword = () => {
 
     //step1: send otp
     const handleSendOtp = async () => {
+        setLoading(true)
         const error = validateField('email', email)
         if (error) {
             setErrors(prev => ({ ...prev, email: error }))
@@ -115,7 +117,9 @@ const ForgotPassword = () => {
                 autoClose: 2000
             })
             setStep(2)
+            setLoading(false)
         } catch (err) {
+            setLoading(false)
             const errorMessage = err?.response?.data?.message || 'Gửi OTP thất bại. Vui lòng thử lại.'
             toast.error(errorMessage, {
                 position: 'top-right',
@@ -126,6 +130,7 @@ const ForgotPassword = () => {
 
     //step2: verify otp
     const handleVerifyOtp = async () => {
+        setLoading(true)
         const error = validateField('otp', otp)
         if (error) {
             setErrors(prev => ({ ...prev, otp: error }))
@@ -144,12 +149,14 @@ const ForgotPassword = () => {
                 withCredentials: true
             })
             console.log(result)
+            setLoading(false)
             toast.success('Xác minh OTP thành công!', {
                 position: 'top-right',
                 autoClose: 2000
             })
             setStep(3)
         } catch (err) {
+            setLoading(false)
             const errorMessage = err?.response?.data?.message || 'Xác minh OTP thất bại. Vui lòng thử lại.'
             toast.error(errorMessage, {
                 position: 'top-right',
@@ -160,6 +167,7 @@ const ForgotPassword = () => {
 
     //step3: reset password
     const handleResetPassword = async () => {
+        setLoading(true)
         const newPasswordError = validateField('newPassword', newPassword)
         const confirmPasswordError = validateField('confirmPassword', confirmPassword)
 
@@ -192,8 +200,10 @@ const ForgotPassword = () => {
                 autoClose: 2000
             })
             console.log(result)
+            setLoading(false)
             setTimeout(() => navigate('/signin'), 2000)
         } catch (err) {
+            setLoading(false)
             const errorMessage = err?.response?.data?.message || 'Đổi mật khẩu thất bại. Vui lòng thử lại.'
             toast.error(errorMessage, {
                 position: 'top-right',
@@ -210,7 +220,7 @@ const ForgotPassword = () => {
                         type='button'
                         onClick={() => navigate('/signin')}
                         title='Quay lại'
-                        className='w-10 h-10 rounded-full  flex items-center justify-center transition-colors duration-100 hover:bg-[#ff4d2d] hover:border-[1px] hover:text-white cursor-pointer'
+                        className='w-10 h-10 rounded-full  flex items-center justify-center transition-colors duration-100 hover:bg-[#ff4d2d] hover:border hover:text-white cursor-pointer'
                     // style={{ borderColor: primaryColor, color: 'var(--primary-color)', '--primary-color': primaryColor }}
                     >
                         <IoIosArrowRoundBack
@@ -300,11 +310,12 @@ const ForgotPassword = () => {
                             {errors.email && <p className='text-red-500 text-sm mt-1'>*{errors.email}</p>}
                         </div>
                         <button
+                            disabled={loading}
                             onClick={handleSendOtp}
                             className={`w-full font-semibold rounded-lg py-2 transition duration-200 text-white hover:opacity-90 cursor-pointer`}
                             style={{ backgroundColor: primaryColor }}
                         >
-                            Lấy mã OTP
+                            {loading ? <ClipLoader size={25} color='white' /> : 'Gửi mã OTP'}
                         </button>
                     </div>}
                 {step == 2
@@ -325,11 +336,12 @@ const ForgotPassword = () => {
                             {errors.otp && <p className='text-red-500 text-sm mt-1'>*{errors.otp}</p>}
                         </div>
                         <button
+                            disabled={loading}
                             onClick={handleVerifyOtp}
                             className={`w-full font-semibold py-2 rounded-lg transition duration-200 text-white hover:opacity-90 cursor-pointer`}
                             style={{ backgroundColor: primaryColor }}
                         >
-                            Xác nhận mã OTP
+                            {loading ? <ClipLoader size={25} color='white' /> : 'Xác nhận mã OTP'}
                         </button>
                     </div>}
                 {step == 3
@@ -369,11 +381,12 @@ const ForgotPassword = () => {
                             {errors.confirmPassword && <p className='text-red-500 text-sm mt-1'>*{errors.confirmPassword}</p>}
                         </div>
                         <button
+                            disabled={loading}
                             onClick={handleResetPassword}
                             className={`w-full font-semibold py-2 rounded-lg transition duration-200 text-white hover:opacity-90 cursor-pointer`}
                             style={{ backgroundColor: primaryColor }}
                         >
-                            Xác nhận đổi mật khẩu
+                            {loading ? <ClipLoader size={25} color='white' /> : 'Đặt lại mật khẩu'}
                         </button>
                     </div>}
             </div>

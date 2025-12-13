@@ -8,6 +8,9 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { auth } from '../../firebase'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import ClipLoader from 'react-spinners/ClipLoader'
+import { useDispatch } from 'react-redux'
+import { setUserData } from '../redux/userSlice'
 
 const SignIn = () => {
     const primaryColor = "#ff4d2d"
@@ -19,6 +22,8 @@ const SignIn = () => {
     const navigate = useNavigate()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [loading, setLoading] = useState(false)
+    const dispatch = useDispatch()
 
     // State cho validation errors
     const [errors, setErrors] = useState({
@@ -99,6 +104,7 @@ const SignIn = () => {
         if (!validateAllFields()) {
             return
         }
+        setLoading(true)
 
         try {
             const result = await axios.post(`${serverUrl}/api/auth/signin`, {
@@ -107,13 +113,15 @@ const SignIn = () => {
             }, {
                 withCredentials: true
             })
-            console.log(result)
+            dispatch(setUserData(result.data))
+            setLoading(false)
             toast.success('Đăng nhập thành công!', {
                 position: 'top-right',
                 autoClose: 2000
             })
             setTimeout(() => navigate('/'), 2000)
         } catch (err) {
+            setLoading(false)
             const errorMessage = err?.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.'
             toast.error(errorMessage, {
                 position: 'top-right',
@@ -135,7 +143,7 @@ const SignIn = () => {
                 position: 'top-right',
                 autoClose: 2000
             })
-            console.log(data)
+            dispatch(setUserData(data))
             setTimeout(() => navigate('/'), 2000)
         } catch (err) {
             const errorMessage = err?.response?.data?.message || 'Đăng nhập Google thất bại.'
@@ -192,8 +200,8 @@ const SignIn = () => {
                     Quên mật khẩu?
                 </div>
 
-                <button onClick={handleSignIn} className={`w-full font-semibold rounded-lg py-2 transition duration-200 bg-[#ff4d2d] text-white hover:bg-[#e64323] cursor-pointer`} >
-                    Đăng nhập
+                <button disabled={loading} onClick={handleSignIn} className={`w-full font-semibold rounded-lg py-2 transition duration-200 bg-[#ff4d2d] text-white hover:bg-[#e64323] cursor-pointer`} >
+                    {loading ? <ClipLoader size={25} color='white' /> : 'Đăng nhập'}
                 </button>
 
                 <button
