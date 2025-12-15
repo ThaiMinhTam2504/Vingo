@@ -13,7 +13,7 @@ const Home = () => {
     return (
         <div className="w-[100vm] m-h-[100vh] pt-[100px] flex flex-col items-center bg-[#fff9f6]">
             <h3 onClick={showClg}>HOME PAGE</h3>
-            <Nav />
+            {/* <Nav /> */}
             {userData.user.role == 'user' && <UserDashboard />}
             {userData.user.role == 'owner' && <OwnerDashboard />}
             {userData.user.role == 'deliveryBoy' && <DeliveryBoy />}

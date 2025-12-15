@@ -3,7 +3,8 @@ import Nav from './Nav.jsx'
 
 const UserDashboard = () => {
     return (
-        <div>
+        <div className='w-full m-h-screen bg-[#fff9f6] flex flex-col items-center'>
+            <Nav />
         </div>
 
     )
