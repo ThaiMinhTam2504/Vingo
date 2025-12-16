@@ -1,5 +1,5 @@
-import uploadCloudinary from "../utils/cloudinary";
-import Shop from "../models/shop.models.js";
+import uploadCloudinary from "../utils/cloudinary.js";
+import Shop from '../models/shop.model.js';
 
 export const createEditShop = async (req, res) => {
     try {
@@ -37,10 +37,14 @@ export const createEditShop = async (req, res) => {
     }
 }
 
-export const editShop = async (req, res) => {
+export const getMyShop = async (req, res) => {
     try {
-
+        const shop = await Shop.findOne({ owner: req.userId }).populate('owner items')
+        if (!shop) {
+            return res.status(404).json({ message: "Chưa có cửa hàng" })
+        }
+        return res.status(200).json(shop)
     } catch (err) {
-
+        return res.status(500).json({ message: `Lấy cửa hàng thất bại: ${err.message}` })
     }
 }

@@ -11,7 +11,8 @@ import { FaPlus } from 'react-icons/fa6'
 import { TbReceipt } from 'react-icons/tb'
 
 const Nav = () => {
-    const { userData, city } = useSelector(state => state.user)
+    const { userData, currentCity } = useSelector(state => state.user)
+    const { myShopData } = useSelector(state => state.owner)
     const [showInfo, setShowInfo] = useState(false)
     const [showSearch, setShowSearch] = useState(false)
     const dispatch = useDispatch()
@@ -31,7 +32,7 @@ const Nav = () => {
                 <div className='w-[90%] h-[70px] flex fixed top-20 md:hidden left-[5%] bg-white shadow-xl rounded-lg items-center gap-5'>
                     <div className='flex items-center min-w-[30px] overflow-hidden gap-2.5 px-2.5 border-r-0.5 border-gray-400'>
                         <IoLocation size={25} className='text-[#ff4d2d]' />
-                        <div className='w-[80%] truncate text-gray-600'>{city}</div>
+                        <div className='w-[80%] truncate text-gray-600'>{currentCity}</div>
 
                     </div>
                     <div className='w-[80%] flex items-center gap-2.5'>
@@ -50,7 +51,7 @@ const Nav = () => {
             {userData?.user?.role == 'user' && <div className='md:w-[60%] lg:w-[40%] h-[70px] bg-white shadow-xl rounded-lg hidden md:flex items-center gap-5'>
                 <div className='flex items-center min-w-[30px] overflow-hidden gap-2.5 px-2.5 border-r-0.5 border-gray-400'>
                     <IoLocation size={25} className='text-[#ff4d2d]' />
-                    <div className='w-[80%] truncate text-gray-600'>{city}</div>
+                    <div className='w-[80%] truncate text-gray-600'>{currentCity}</div>
 
                 </div>
                 <div className='w-[80%] flex items-center gap-2.5'>
@@ -81,14 +82,16 @@ const Nav = () => {
                 {
                     userData?.user?.role === 'owner' ? (
                         <>
-                            <button className='hidden md:flex items-center gap-1 p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]'>
-                                <FaPlus size={20} />
-                                <span>Thêm món</span>
-                            </button>
+                            {myShopData && <>
+                                <button className='hidden md:flex items-center gap-1 p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]'>
+                                    <FaPlus size={20} />
+                                    <span>Thêm món</span>
+                                </button>
 
-                            <button className='md:hidden flex items-center p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]'>
-                                <FaPlus size={20} />
-                            </button>
+                                <button className='md:hidden flex items-center p-2 cursor-pointer rounded-full bg-[#ff4d2d]/10 text-[#ff4d2d]'>
+                                    <FaPlus size={20} />
+                                </button></>}
+
 
                             <div className='hidden md:flex items-center gap-2 cursor-pointer relative px-3 py-1
                             rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] font-medium'>
