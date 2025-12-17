@@ -9,18 +9,50 @@ import { serverUrl } from '../App'
 import { setMyShopData } from '../redux/ownerSlice'
 
 
-const CreateEditShop = () => {
+const AddItem = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const { myShopData } = useSelector(state => state.owner)
-    const { currentCity, currentState, currentAddress } = useSelector(state => state.user)
 
-    const [name, setName] = useState(myShopData?.name || '')
-    const [address, setAddress] = useState(myShopData?.currentAddress || currentAddress || '')
-    const [city, setCity] = useState(myShopData?.currentCity || currentCity || '')
-    const [state, setState] = useState(myShopData?.currentState || currentState || '')
 
-    const [frontendImage, setFrontendImage] = useState(myShopData?.image || null)
+    const [name, setName] = useState('')
+    const [price, setPrice] = useState(0)
+    const [category, setCategory] = useState('')
+    const [foodType, setFoodType] = useState('non-veg')
+    const categories = [
+        "Snacks",
+        "Main Course",
+        "Desserts",
+        "Pizza",
+        "Burgers",
+        "Sandwiches",
+        "North Indian",
+        "South Indian",
+        "Chinese",
+        "Fast Food",
+        "Beverages",
+        "Others"
+    ]
+    const convertEnglishToVietnamese = (category) => {
+        const categoryMap = {
+            "Snacks": "Đồ ăn nhẹ",
+            "Main Course": "Món chính",
+            "Desserts": "Món tráng miệng",
+            "Pizza": "Pizza",
+            "Burgers": "Bánh mì kẹp",
+            "Sandwiches": "Bánh mì sandwich",
+            "North Indian": "Đồ ăn Bắc Ấn",
+            "South Indian": "Đồ ăn Nam Ấn",
+            "Chinese": "Đồ ăn Trung Quốc",
+            "Fast Food": "Đồ ăn nhanh",
+            "Beverages": "Đồ uống",
+            "Others": "Khác"
+        };
+        return categoryMap[category] || category;
+    }
+
+
+    const [frontendImage, setFrontendImage] = useState(myShopData?.items.length > 0 || null)
     const [backendImage, setBackendImage] = useState(null)
     const [showLargePreview, setShowLargePreview] = useState(false)
     const [isPortrait, setIsPortrait] = useState(null)
@@ -74,34 +106,24 @@ const CreateEditShop = () => {
 
         // Validate required fields
         if (!name.trim()) {
-            setError('Vui lòng nhập tên cửa hàng')
+            setError('Vui lòng nhập tên món')
             return
         }
-        if (!city.trim()) {
-            setError('Vui lòng nhập thành phố')
-            return
-        }
-        if (!state.trim()) {
-            setError('Vui lòng nhập tỉnh')
-            return
-        }
-        if (!address.trim()) {
-            setError('Vui lòng nhập địa chỉ')
-            return
-        }
+
 
         try {
             setLoading(true)
             const formData = new FormData()
             formData.append('name', name)
-            formData.append('city', city)
-            formData.append('state', state)
-            formData.append('address', address)
+            formData.append('foodType', foodType)
+            formData.append('category', category)
+            formData.append('price', price)
+
             if (backendImage) {
                 formData.append('image', backendImage)
             }
 
-            const result = await axios.post(`${serverUrl}/api/shop/create-edit`, formData, {
+            const result = await axios.post(`${serverUrl}/api/item/add-item`, formData, {
                 withCredentials: true,
                 headers: {
                     'Content-Type': 'multipart/form-data'
@@ -130,22 +152,22 @@ const CreateEditShop = () => {
                         <FaUtensils size={40} className='text-[#ff4d2d] w-16 h-16' />
                     </div>
                     <div className='text-3xl font-extrabold text-gray-900'>
-                        {myShopData ? "Chinh sửa cửa hàng" : "Thêm cửa hàng mới"}
+                        Thêm món
                     </div>
                 </div>
                 <form className='space-y-5' onSubmit={handleSubmit}>
                     <div >
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>Tên cửa hàng</label>
+                        <label className='block text-sm font-medium text-gray-700 mb-1'>Tên món</label>
                         <input
                             onChange={(e) => setName(e.target.value)}
                             value={name}
-                            type='text' placeholder='Nhập tên cửa hàng' className='w-full px-4 py-2
+                            type='text' placeholder='Nhập tên món' className='w-full px-4 py-2
                         border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500' />
                     </div>
 
                     {/* Image Upload Section */}
                     <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-2'>Hình ảnh cửa hàng</label>
+                        <label className='block text-sm font-medium text-gray-700 mb-2'>Hình ảnh món</label>
                         <div className='relative'>
                             <input
                                 type='file'
@@ -172,7 +194,7 @@ const CreateEditShop = () => {
                                         <div className='w-[50%] h-full overflow-hidden'>
                                             <img
                                                 src={frontendImage}
-                                                alt='Ảnh cửa hàng'
+                                                alt='Ảnh món'
                                                 onLoad={(e) => {
                                                     const img = e.currentTarget
                                                     setIsPortrait(img.naturalHeight > img.naturalWidth)
@@ -210,46 +232,57 @@ const CreateEditShop = () => {
                             <div className='mt-4 w-full h-64 rounded-lg border-2 border-gray-200 shadow-sm bg-gray-50 flex items-center justify-center overflow-hidden'>
                                 <img
                                     src={frontendImage}
-                                    alt='Ảnh preview cửa hàng'
+                                    alt='Ảnh preview món'
                                     className='max-w-full max-h-full object-contain'
                                 />
                             </div>
                         )}
                     </div>
 
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>Thành phố</label>
-                            <input
-                                onChange={(e) => setCity(e.target.value)}
-                                value={city}
-                                type='text' placeholder='Nhập thành phố' className='w-full px-4 py-2 
+                    <div >
+                        <label className='block text-sm font-medium text-gray-700 mb-1'>Giá</label>
+                        <input
+                            onChange={(e) => setPrice(e.target.value)}
+                            value={price}
+                            type='number' placeholder='0' className='w-full px-4 py-2
                         border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500' />
-                        </div>
-                        <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>Tỉnh</label>
-                            <input
-                                onChange={(e) => setState(e.target.value)}
-                                value={state}
-                                type='text' placeholder='Nhập tỉnh' className='w-full px-4 py-2 
-                        border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500' />
-                        </div>
                     </div>
 
-                    <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>Địa chỉ</label>
-                        <input
-                            onChange={(e) => setAddress(e.target.value)}
-                            value={address}
-                            type='text' placeholder='Nhập địa chỉ cửa hàng' className='w-full px-4 py-2 
-                        border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500' />
+                    <div >
+                        <label className='block text-sm font-medium text-gray-700 mb-1'>Loại món ăn</label>
+                        <select
+                            onChange={(e) => setCategory(e.target.value)}
+                            value={category}
+                            className='w-full px-4 py-2
+                        border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500'>
+                            <option value="" disabled>Chọn loại món ăn</option>
+                            {categories.map((cat, index) => (
+                                <option key={index} value={cat}>{convertEnglishToVietnamese(cat)}</option>
+                            ))}
+                        </select>
                     </div>
+
+                    <div >
+                        <label className='block text-sm font-medium text-gray-700 mb-1'>Chay hay không?</label>
+                        <select
+                            onChange={(e) => setFoodType(e.target.value)}
+                            value={foodType}
+                            className='w-full px-4 py-2
+                        border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500'>
+                            <option value="non-veg">Không chay</option>
+                            <option value="veg">Chay</option>
+                        </select>
+                    </div>
+
+
 
                     {error && (
                         <div className='p-4 bg-red-50 border border-red-200 rounded-lg'>
                             <span className='text-sm text-red-600'>{error}</span>
                         </div>
                     )}
+
+
 
                     <button
                         type='submit'
@@ -262,7 +295,7 @@ const CreateEditShop = () => {
                                 <span>Đang xử lý...</span>
                             </div>
                         ) : (
-                            myShopData ? "Cập nhật cửa hàng" : "Tạo cửa hàng"
+                            "Thêm món"
                         )}
                     </button>
                 </form>
@@ -272,4 +305,4 @@ const CreateEditShop = () => {
     )
 }
 
-export default CreateEditShop
+export default AddItem

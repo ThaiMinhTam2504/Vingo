@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import useGetCity from './hooks/useGetCity.jsx'
 import useGetMyShop from './hooks/useGetMyShop.jsx'
 import CreateEditShop from './pages/CreateEditShop.jsx'
+import AddItem from './pages/AddItem.jsx'
 export const serverUrl = "http://localhost:8000"
 
 const App = () => {
@@ -24,6 +25,7 @@ const App = () => {
       <Route path='/' element={userData ? <Home /> : <Navigate to="/signin" />} />
 
       <Route path='/create-edit-shop' element={<CreateEditShop />} />
+      <Route path='/add-item' element={<AddItem />} />
 
     </Routes>
   )

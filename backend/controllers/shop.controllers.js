@@ -15,22 +15,26 @@ export const createEditShop = async (req, res) => {
                 city,
                 state,
                 address,
+                ...(image && { image }),
                 owner: req.userId
             })
         } else {
-            shop = await Shop.findByIdAndUpdate(shop._id, {
+            const updateData = {
                 name,
                 city,
                 state,
                 address,
-                image,
                 owner: req.userId
-            }, {
+            }
+            if (image) {
+                updateData.image = image
+            }
+            shop = await Shop.findByIdAndUpdate(shop._id, updateData, {
                 new: true
             })
         }
 
-        await shop.populate("owner")
+        await shop.populate("owner items")
         return res.status(201).json(shop)
     } catch (err) {
         return res.status(500).json({ message: `Tạo cửa hàng thất bại: ${err.message}` })

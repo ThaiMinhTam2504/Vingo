@@ -21,8 +21,10 @@ export const addItem = async (req, res) => {
             image,
             shop: shop._id
         })
-
-        return res.status(201).json(item)
+        shop.items.push(item._id)
+        await shop.save()
+        await shop.populate("owner items")
+        return res.status(201).json(shop)
     } catch (err) {
         return res.status(500).json({ message: `Thêm món thất bại: ${err.message}` })
     }

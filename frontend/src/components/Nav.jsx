@@ -27,7 +27,7 @@ const Nav = () => {
     return (
         <div className='w-full h-20 flex items-center justify-between
         md:justify-center gap-[30px] px-5 fixed top-0 z-9999 bg-[#fff9f6]
-        overflow-visible'>
+        overflow-visible hover:shadow-xl transition-shadow'>
             {showSearch && userData.user.role == 'user' &&
                 <div className='w-[90%] h-[70px] flex fixed top-20 md:hidden left-[5%] bg-white shadow-xl rounded-lg items-center gap-5'>
                     <div className='flex items-center min-w-[30px] overflow-hidden gap-2.5 px-2.5 border-r-0.5 border-gray-400'>
